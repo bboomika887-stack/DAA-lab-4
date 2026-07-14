@@ -1,15 +1,13 @@
+import streamlit as st
 import heapq
 
+st.set_page_config(page_title="Dijkstra's Algorithm", layout="centered")
+
+st.title("🚀 Dijkstra's Shortest Path Algorithm")
+
+# ---------------- Dijkstra ----------------
 
 def dijkstra(graph, source):
-    """
-    Dijkstra's Algorithm using Min-Heap
-
-    Time Complexity: O((V + E) log V)
-    Space Complexity: O(V)
-
-    graph: Dictionary {u: [(v, weight), ...]}
-    """
 
     n = len(graph)
 
@@ -18,7 +16,7 @@ def dijkstra(graph, source):
 
     dist[source] = 0
 
-    pq = [(0, source)]  # (distance, vertex)
+    pq = [(0, source)]
     visited = set()
 
     while pq:
@@ -39,6 +37,7 @@ def dijkstra(graph, source):
 
 
 def reconstruct_path(prev, source, target):
+
     path = []
     node = target
 
@@ -53,8 +52,7 @@ def reconstruct_path(prev, source, target):
 
     return []
 
-
-# ---------------- Graph Definition ----------------
+# ---------------- Graph ----------------
 
 graph = {
     0: [(1, 4), (2, 1)],
@@ -65,23 +63,40 @@ graph = {
     5: []
 }
 
-source = 0
+source = st.number_input(
+    "Enter Source Vertex",
+    min_value=0,
+    max_value=len(graph)-1,
+    value=0,
+    step=1
+)
 
-dist, prev = dijkstra(graph, source)
+if st.button("Find Shortest Paths"):
 
-print(f"Shortest paths from vertex {source}:\n")
+    dist, prev = dijkstra(graph, source)
 
-print("{:<8}{:<12}{}".format("Vertex", "Distance", "Path"))
-print("-" * 45)
+    st.subheader(f"Shortest Paths from Vertex {source}")
 
-for v in range(len(graph)):
-    path = reconstruct_path(prev, source, v)
+    data = []
 
-    if path:
-        path_str = " -> ".join(map(str, path))
-    else:
-        path_str = "No Path"
+    for v in range(len(graph)):
 
-    distance = dist[v] if dist[v] != float("inf") else "INF"
+        path = reconstruct_path(prev, source, v)
 
-    print("{:<8}{:<12}{}".format(v, distance, path_str))
+        if path:
+            path_str = " → ".join(map(str, path))
+        else:
+            path_str = "No Path"
+
+        if dist[v] == float("inf"):
+            distance = "∞"
+        else:
+            distance = dist[v]
+
+        data.append({
+            "Vertex": v,
+            "Distance": distance,
+            "Path": path_str
+        })
+
+    st.table(data)
